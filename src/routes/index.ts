@@ -1,2 +1,0 @@
-import {Router} from 'express';import {authRouter} from '../controllers/auth';import {usersRouter} from '../controllers/users';import {communityRouter} from '../controllers/community';import {resourcesRouter} from '../controllers/resources';import {messagesRouter} from '../controllers/messages';
-export const api=Router();api.use('/auth',authRouter);api.use('/users',usersRouter);api.use('/',communityRouter);api.use('/',resourcesRouter);api.use('/messages',messagesRouter);
