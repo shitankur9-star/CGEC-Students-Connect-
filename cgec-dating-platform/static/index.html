@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CGEC Dating Platform - Cooch Behar Government Engineering College</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              pink: '#ff4b72',
+              purple: '#833ab4',
+              orange: '#ff7e5f',
+              dark: '#0f172a',
+              card: 'rgba(30, 41, 59, 0.75)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-rose-500 selection:text-white">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="app.switchTab('feed')">
+        <div class="w-10 h-10 rounded-xl gradient-btn flex items-center justify-center text-white shadow-lg">
+          <i data-lucide="heart" class="w-6 h-6 fill-white stroke-none animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight flex items-center gap-1.5">
+            <span class="gradient-text">CGEC</span>
+            <span class="text-white">Dating</span>
+          </h1>
+          <p class="text-[10px] text-slate-400 font-medium tracking-wide uppercase">Cooch Behar Engg. College</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Right -->
+      <div class="flex items-center space-x-3">
+        <button onclick="app.openCreatePostModal()" class="hidden md:flex items-center space-x-2 px-4 py-2 rounded-full gradient-btn text-xs font-semibold text-white">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>New Post</span>
+        </button>
+
+        <!-- Current User Avatar Profile Pill -->
+        <div id="header-user-pill" onclick="app.switchTab('profile')" class="flex items-center space-x-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-full p-1 pr-3 cursor-pointer transition">
+          <img id="header-user-avatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80'" class="w-8 h-8 rounded-full object-cover border border-rose-500" alt="User Avatar">
+          <span id="header-user-name" class="text-xs font-bold text-slate-200">My Profile</span>
+          <span id="header-user-gender" class="text-[10px] bg-rose-500/20 text-rose-300 font-bold px-2 py-0.5 rounded-full">CGEC</span>
+        </div>
+
+        <button onclick="app.openAuthModal()" class="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-800 transition" title="Switch Account / Register">
+          <i data-lucide="user-plus" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Content Container -->
+  <div class="max-w-6xl mx-auto w-full flex-1 flex flex-col md:flex-row gap-6 p-3 md:p-6 pb-20 md:pb-6">
+
+    <!-- Desktop Navigation Sidebar -->
+    <aside class="hidden md:flex flex-col w-64 glass-panel rounded-2xl p-4 shrink-0 h-[calc(100vh-120px)] sticky top-20 justify-between">
+      <div class="space-y-2">
+        <div class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Navigation</div>
+        
+        <button onclick="app.switchTab('feed')" id="nav-feed" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold text-sm transition bg-rose-500/20 text-rose-400 border border-rose-500/30">
+          <i data-lucide="compass" class="w-5 h-5"></i>
+          <span>Campus Feed</span>
+        </button>
+
+        <button onclick="app.switchTab('discover')" id="nav-discover" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-400 hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+          <span>Match & Swipe</span>
+        </button>
+
+        <button onclick="app.switchTab('messages')" id="nav-messages" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-400 hover:bg-slate-800/60 hover:text-white transition relative">
+          <i data-lucide="message-circle" class="w-5 h-5 text-indigo-400"></i>
+          <span>Messages</span>
+          <span id="unread-badge" class="ml-auto bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">3</span>
+        </button>
+
+        <button onclick="app.switchTab('profile')" id="nav-profile" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-400 hover:bg-slate-800/60 hover:text-white transition">
+          <i data-lucide="user" class="w-5 h-5 text-emerald-400"></i>
+          <span>My Profile</span>
+        </button>
+      </div>
+
+      <!-- Quick Info / College Badge -->
+      <div class="glass-card rounded-xl p-3 border border-slate-800 text-center">
+        <div class="flex items-center justify-center space-x-1 text-xs text-rose-400 font-bold mb-1">
+          <i data-lucide="heart-handshake" class="w-4 h-4"></i>
+          <span>CGEC Campus Connect</span>
+        </div>
+        <p class="text-[11px] text-slate-400">Connect with CSE, ECE, EE, ME & CE students across campus!</p>
+      </div>
+    </aside>
+
+    <!-- Main View Section -->
+    <main class="flex-1 w-full max-w-2xl mx-auto">
+      
+      <!-- TAB 1: INSTAGRAM FEED -->
+      <section id="tab-feed" class="tab-content space-y-6">
+        <!-- Campus Stories Horizontal Bar -->
+        <div class="glass-panel rounded-2xl p-4 overflow-x-auto border border-slate-800">
+          <div class="flex space-x-4 min-w-max items-center" id="stories-container">
+            <!-- Story Items injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Create Post Prompt Mobile -->
+        <div class="md:hidden glass-panel rounded-2xl p-3 flex items-center justify-between border border-slate-800">
+          <div class="flex items-center space-x-3">
+            <img id="mobile-post-user-avatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=100&q=80" class="w-9 h-9 rounded-full object-cover" alt="User">
+            <span class="text-xs text-slate-400 font-medium">Share something with CGEC...</span>
+          </div>
+          <button onclick="app.openCreatePostModal()" class="px-3 py-1.5 rounded-full gradient-btn text-xs font-bold text-white">Post</button>
+        </div>
+
+        <!-- Feed Posts Stream -->
+        <div id="feed-posts-container" class="space-y-6">
+          <!-- Feed Posts injected dynamically -->
+        </div>
+      </section>
+
+      <!-- TAB 2: DISCOVER / SWIPE -->
+      <section id="tab-discover" class="tab-content hidden flex flex-col items-center">
+        <div class="w-full max-w-sm mb-4 text-center">
+          <h2 class="text-xl font-bold text-white flex items-center justify-center gap-2">
+            <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+            <span>Discover Campus Matches</span>
+          </h2>
+          <p class="text-xs text-slate-400">Swipe right to Like, left to Pass! Boys & Girls from CGEC</p>
+        </div>
+
+        <!-- Interactive Swipe Deck Container -->
+        <div class="swipe-deck relative" id="swipe-deck-container">
+          <!-- Cards injected dynamically -->
+        </div>
+
+        <!-- Swipe Action Control Buttons -->
+        <div class="flex items-center justify-center space-x-6 mt-6">
+          <button onclick="app.triggerSwipe('pass')" class="w-14 h-14 rounded-full bg-slate-800/90 border border-slate-700 text-rose-500 hover:bg-rose-500 hover:text-white shadow-xl flex items-center justify-center transition transform hover:scale-110 active:scale-95">
+            <i data-lucide="x" class="w-7 h-7 stroke-[3]"></i>
+          </button>
+          
+          <button onclick="app.triggerSwipe('superlike')" class="w-12 h-12 rounded-full bg-slate-800/90 border border-slate-700 text-amber-400 hover:bg-amber-400 hover:text-slate-900 shadow-xl flex items-center justify-center transition transform hover:scale-110 active:scale-95">
+            <i data-lucide="star" class="w-6 h-6 fill-amber-400 stroke-none"></i>
+          </button>
+
+          <button onclick="app.triggerSwipe('like')" class="w-14 h-14 rounded-full bg-slate-800/90 border border-slate-700 text-emerald-400 hover:bg-emerald-500 hover:text-white shadow-xl flex items-center justify-center transition transform hover:scale-110 active:scale-95">
+            <i data-lucide="heart" class="w-7 h-7 fill-current stroke-none"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 3: MESSAGES & CHAT -->
+      <section id="tab-messages" class="tab-content hidden glass-panel rounded-2xl overflow-hidden border border-slate-800 h-[calc(100vh-140px)] flex flex-col md:flex-row">
+        <!-- Left: Match Chat Inbox List -->
+        <div id="chat-inbox-pane" class="w-full md:w-80 border-r border-slate-800 flex flex-col h-full bg-slate-900/60">
+          <div class="p-4 border-b border-slate-800">
+            <h3 class="font-bold text-base text-white flex items-center justify-between">
+              <span>Your Matches</span>
+              <span id="matches-count-badge" class="bg-rose-500/20 text-rose-400 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+            </h3>
+          </div>
+          <!-- Matches List -->
+          <div id="matches-list-container" class="flex-1 overflow-y-auto divide-y divide-slate-800/50">
+            <!-- Matches items injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Right: Active Chat Conversation Box -->
+        <div id="chat-conversation-pane" class="flex-1 flex flex-col h-full bg-slate-950/80">
+          <!-- Chat Header -->
+          <div id="chat-header" class="p-3 px-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+            <div class="flex items-center space-x-3">
+              <button onclick="app.showInboxPaneMobile()" class="md:hidden text-slate-400 hover:text-white">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              </button>
+              <img id="chat-recipient-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-10 h-10 rounded-full object-cover border border-rose-500" alt="Avatar">
+              <div>
+                <h4 id="chat-recipient-name" class="font-bold text-sm text-white">Select a match to chat</h4>
+                <p id="chat-recipient-status" class="text-[11px] text-emerald-400 flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                  <span>Online</span>
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span id="chat-recipient-dept" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full font-medium">CSE 3rd Yr</span>
+            </div>
+          </div>
+
+          <!-- Chat Messages Body -->
+          <div id="chat-messages-body" class="flex-1 p-4 overflow-y-auto space-y-3">
+            <div class="text-center text-xs text-slate-500 my-4">Select a match from the left list to start messaging!</div>
+          </div>
+
+          <!-- Chat Input Bar -->
+          <form id="chat-form" onsubmit="app.sendChatMessage(event)" class="p-3 border-t border-slate-800 bg-slate-900/90 flex items-center space-x-2">
+            <button type="button" onclick="app.triggerImageUploadChat()" class="text-slate-400 hover:text-rose-400 p-2 rounded-full transition">
+              <i data-lucide="image" class="w-5 h-5"></i>
+            </button>
+            <input type="file" id="chat-image-input" class="hidden" accept="image/*" onchange="app.handleChatImageSelect(event)">
+            
+            <input type="text" id="chat-text-input" placeholder="Type a message..." class="flex-1 bg-slate-800/80 border border-slate-700 rounded-full px-4 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-rose-500">
+
+            <button type="submit" class="w-10 h-10 rounded-full gradient-btn text-white flex items-center justify-center shrink-0">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- TAB 4: MY PROFILE -->
+      <section id="tab-profile" class="tab-content hidden space-y-6">
+        <!-- Profile Header Card -->
+        <div class="glass-panel rounded-2xl p-6 border border-slate-800 relative overflow-hidden">
+          <div class="absolute -top-10 -right-10 w-40 h-40 bg-rose-500/10 rounded-full blur-2xl"></div>
+          
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <div class="relative group cursor-pointer" onclick="app.triggerProfilePhotoUpload()">
+              <img id="profile-avatar-display" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80" class="w-24 h-24 rounded-2xl object-cover border-2 border-rose-500 shadow-xl" alt="Avatar">
+              <div class="absolute inset-0 bg-slate-950/60 rounded-2xl opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center text-white">
+                <i data-lucide="camera" class="w-6 h-6 mb-1 text-rose-400"></i>
+                <span class="text-[9px] font-bold">Upload Photo</span>
+              </div>
+              <input type="file" id="profile-photo-file-input" class="hidden" accept="image/*" onchange="app.handleProfilePhotoUpload(event)">
+            </div>
+            
+            <div class="flex-1 text-center sm:text-left">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                <h3 id="profile-name-display" class="text-2xl font-bold text-white">Rohit Sen</h3>
+                <span id="profile-gender-badge" class="w-max mx-auto sm:mx-0 text-xs bg-rose-500/20 text-rose-300 font-bold px-3 py-1 rounded-full border border-rose-500/30">Boy</span>
+              </div>
+              <p id="profile-dept-display" class="text-xs text-slate-400 font-medium mb-3">Computer Science (CSE) • 3rd Year • CGEC</p>
+
+              <p id="profile-bio-display" class="text-sm text-slate-200 bg-slate-900/50 p-3 rounded-xl border border-slate-800/80 mb-4">
+                Full-stack developer 💻 | Football captain ⚽ | Guitarist in college band | Always down for late night Maggi 🍜
+              </p>
+
+              <!-- Tags -->
+              <div id="profile-interests-display" class="flex flex-wrap gap-1.5 justify-center sm:justify-start">
+                <span class="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">Coding</span>
+                <span class="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">Football</span>
+                <span class="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">Rock Music</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Posted Feed Grid -->
+        <div class="glass-panel rounded-2xl p-4 border border-slate-800">
+          <h4 class="font-bold text-sm text-white mb-4 flex items-center gap-2">
+            <i data-lucide="grid" class="w-4 h-4 text-rose-400"></i>
+            <span>My Feed Posts</span>
+          </h4>
+          <div id="profile-posts-grid" class="grid grid-cols-3 gap-2">
+            <!-- User posts grid injected dynamically -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-800/80 px-4 py-2 flex items-center justify-around">
+    <button onclick="app.switchTab('feed')" id="mobile-nav-feed" class="flex flex-col items-center text-rose-400 text-[10px] font-bold">
+      <i data-lucide="compass" class="w-6 h-6 mb-0.5"></i>
+      <span>Feed</span>
+    </button>
+    <button onclick="app.switchTab('discover')" id="mobile-nav-discover" class="flex flex-col items-center text-slate-400 text-[10px] font-bold">
+      <i data-lucide="sparkles" class="w-6 h-6 mb-0.5 text-amber-400"></i>
+      <span>Match</span>
+    </button>
+    <button onclick="app.openCreatePostModal()" class="flex flex-col items-center">
+      <div class="w-10 h-10 rounded-full gradient-btn flex items-center justify-center text-white shadow-lg -mt-4 border-2 border-slate-900">
+        <i data-lucide="plus" class="w-6 h-6"></i>
+      </div>
+    </button>
+    <button onclick="app.switchTab('messages')" id="mobile-nav-messages" class="flex flex-col items-center text-slate-400 text-[10px] font-bold relative">
+      <i data-lucide="message-circle" class="w-6 h-6 mb-0.5"></i>
+      <span>Messages</span>
+    </button>
+    <button onclick="app.switchTab('profile')" id="mobile-nav-profile" class="flex flex-col items-center text-slate-400 text-[10px] font-bold">
+      <i data-lucide="user" class="w-6 h-6 mb-0.5"></i>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+
+  <!-- MODAL 1: AUTH / ACCOUNT REGISTRATION & LOGIN -->
+  <div id="modal-auth" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-panel max-w-md w-full rounded-3xl p-6 border border-slate-800 shadow-2xl relative">
+      <button onclick="app.closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl gradient-btn flex items-center justify-center text-white mx-auto mb-3">
+          <i data-lucide="heart" class="w-6 h-6 fill-white stroke-none"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">Join CGEC Dating Platform</h3>
+        <p class="text-xs text-slate-400">Open your Boy or Girl account & meet fellow students</p>
+      </div>
+
+      <form id="auth-form" onsubmit="app.handleAuthSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+          <input type="text" id="auth-name" required placeholder="e.g. Priya Sharma or Rohit Sen" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">I am a</label>
+            <select id="auth-gender" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+              <option value="Girl">Girl 👩‍🎓</option>
+              <option value="Boy" selected>Boy 👨‍🎓</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Looking for</label>
+            <select id="auth-looking" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+              <option value="Girl">Girl</option>
+              <option value="Boy">Boy</option>
+              <option value="Everyone">Everyone</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Department</label>
+            <select id="auth-dept" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+              <option value="Computer Science (CSE)">CSE</option>
+              <option value="Electronics & Comm (ECE)">ECE</option>
+              <option value="Electrical Engg (EE)">EE</option>
+              <option value="Mechanical Engg (ME)">ME</option>
+              <option value="Civil Engg (CE)">CE</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Year</label>
+            <select id="auth-year" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year" selected>3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Bio / Status</label>
+          <textarea id="auth-bio" rows="2" placeholder="Tell CGEC students about yourself..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-rose-500"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Profile Photo Upload</label>
+          <div class="flex items-center space-x-3 bg-slate-900 border border-slate-700 rounded-xl p-2">
+            <img id="auth-avatar-preview" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" class="w-12 h-12 rounded-xl object-cover border border-rose-500 shrink-0" alt="Preview">
+            <div class="flex-1 min-w-0">
+              <label for="auth-avatar-file" class="cursor-pointer bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 inline-flex items-center gap-1.5 transition">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                <span>Choose Photo File</span>
+              </label>
+              <input type="file" id="auth-avatar-file" class="hidden" accept="image/*" onchange="app.handleAuthPhotoFileSelect(event)">
+              <input type="hidden" id="auth-avatar" value="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=80">
+              <p id="auth-file-name" class="text-[10px] text-slate-400 mt-1 truncate">No file selected (default set)</p>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl gradient-btn font-bold text-sm text-white shadow-lg mt-2">
+          Create Account & Start
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- MODAL 2: CREATE NEW POST -->
+  <div id="modal-create-post" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-panel max-w-md w-full rounded-3xl p-6 border border-slate-800 shadow-2xl relative">
+      <button onclick="app.closeCreatePostModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <i data-lucide="image" class="w-5 h-5 text-rose-400"></i>
+        <span>Create Instagram Feed Post</span>
+      </h3>
+
+      <form onsubmit="app.handleCreatePostSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Post Photo Upload</label>
+          <div class="flex items-center space-x-3 bg-slate-900 border border-slate-700 rounded-xl p-2">
+            <img id="post-image-preview" src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=150&q=80" class="w-12 h-12 rounded-xl object-cover border border-rose-500 shrink-0" alt="Preview">
+            <div class="flex-1 min-w-0">
+              <label for="post-image-file" class="cursor-pointer bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 inline-flex items-center gap-1.5 transition">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                <span>Choose Photo File</span>
+              </label>
+              <input type="file" id="post-image-file" class="hidden" accept="image/*" onchange="app.handlePostPhotoFileSelect(event)">
+              <input type="hidden" id="post-image-url" value="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80">
+              <p id="post-file-name" class="text-[10px] text-slate-400 mt-1 truncate">No file selected (default set)</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Caption</label>
+          <textarea id="post-caption" rows="3" required placeholder="Write something cool about CGEC campus life..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-rose-500"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Location Tag</label>
+          <input type="text" id="post-location" value="CGEC Campus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl gradient-btn font-bold text-sm text-white shadow-lg">
+          Publish Post to Feed
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- MODAL 3: MATCH CELEBRATION POPUP -->
+  <div id="modal-match" class="fixed inset-0 z-50 match-modal-bg hidden flex items-center justify-center p-4">
+    <div class="text-center max-w-sm w-full p-6 animate-bounce-short">
+      <div class="text-5xl mb-2">🎉</div>
+      <h2 class="text-3xl font-extrabold gradient-text tracking-tight mb-1">IT'S A MATCH!</h2>
+      <p class="text-xs text-slate-300 mb-6">You and <span id="match-target-name" class="font-bold text-rose-400">Priya</span> liked each other!</p>
+
+      <div class="flex items-center justify-center space-x-4 mb-8">
+        <img id="match-user1-avatar" src="" class="w-20 h-20 rounded-full object-cover border-4 border-rose-500 shadow-2xl" alt="User 1">
+        <div class="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-lg animate-pulse">
+          <i data-lucide="heart" class="w-6 h-6 fill-white stroke-none"></i>
+        </div>
+        <img id="match-user2-avatar" src="" class="w-20 h-20 rounded-full object-cover border-4 border-purple-500 shadow-2xl" alt="User 2">
+      </div>
+
+      <div class="space-y-3">
+        <button onclick="app.openChatWithMatch()" class="w-full py-3 rounded-xl gradient-btn font-bold text-sm text-white shadow-lg">
+          Send a Message
+        </button>
+        <button onclick="app.closeMatchModal()" class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">
+          Keep Swiping
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Main JavaScript Logic -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
